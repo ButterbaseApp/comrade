@@ -45,9 +45,7 @@ jobs:
       run: crystal tool format --check
       
     - name: Run Ameba linter
-      uses: crystal-ameba/github-action@v0.12.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: ./bin/ameba
 
   
   integration:
