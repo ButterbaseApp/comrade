@@ -1,7 +1,7 @@
 # Comrade
 
 [![Crystal shard](https://img.shields.io/badge/shard-comrade-blue.svg)](https://github.com/watzon/comrade)
-[![Crystal CI](https://github.com/watzon/comrade/workflows/CI/badge.svg)](https://github.com/watzon/comrade/actions)
+[![CI Status](https://github.com/ButterbaseApp/comrade/actions/workflows/badge.yml/badge.svg)](https://github.com/ButterbaseApp/comrade/actions/workflows/badge.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 > A Crystal OAuth library inspired by Laravel Socialite for simple, elegant OAuth authentication.
