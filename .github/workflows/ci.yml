@@ -45,7 +45,9 @@ jobs:
       run: crystal tool format --check
       
     - name: Run Ameba linter
-      run: ameba
+      uses: crystal-ameba/github-action@v0.12.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   security:
     name: Security Audit
