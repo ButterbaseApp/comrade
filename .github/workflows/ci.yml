@@ -49,31 +49,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  security:
-    name: Security Audit
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Set up Crystal
-      uses: crystal-lang/install-crystal@v1
-      with:
-        crystal: latest
-        
-    - name: Install dependencies
-      run: shards install
-      
-    - name: Run security audit
-      run: |
-        # Check for known vulnerable dependencies (if shard audit tool is available)
-        if command -v shard-auditor &> /dev/null; then
-          shard-auditor
-        else
-          echo "shard-auditor not available, skipping dependency audit"
-        fi
-
+  
   integration:
     name: Integration Tests
     runs-on: ubuntu-latest
