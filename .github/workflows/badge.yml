@@ -3,8 +3,18 @@ name: Badge
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'src/**/*.cr'
+      - 'spec/**/*.cr'
+      - 'shard.yml'
+      - '.github/workflows/badge.yml'
   pull_request:
     branches: [ main ]
+    paths:
+      - 'src/**/*.cr'
+      - 'spec/**/*.cr'
+      - 'shard.yml'
+      - '.github/workflows/badge.yml'
 
 jobs:
   badge:
