@@ -1,0 +1,32 @@
+name: Badge
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  badge:
+    name: Build Status Badge
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Crystal
+      uses: crystal-lang/install-crystal@v1
+      with:
+        crystal: latest
+        
+    - name: Install dependencies
+      run: shards install
+      
+    - name: Run tests
+      run: crystal spec --verbose
+      
+    - name: Update badge
+      if: github.ref == 'refs/heads/main'
+      run: |
+        echo "✅ CI passed - all tests successful"

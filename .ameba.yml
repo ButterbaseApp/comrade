@@ -1,0 +1,55 @@
+# Ameba configuration file for Comrade
+
+# Glob to specify source files to lint
+sources:
+  - src/**/*.cr
+  - spec/**/*.cr
+
+# Exclude specific files or directories
+exclude:
+  - lib/**/*.cr
+
+# Enabled rules
+enabled_rules:
+  - Convention/CenterAlignment
+  - Convention/ConstantNames
+  - Convention/FileName
+  - Formatting/TrailingBlankLines
+  - Lint/EmptyString
+  - Lint/ShadowingOuterLocalVar
+  - Metrics/CyclomaticComplexity
+  - Naming/BlockParameterName
+  - Naming/MethodNames
+  - Performance/CompactAssignments
+  - Performance/SizeAfterMap
+  - Style/VerboseBlock
+  - Syntax/UnlessElse
+
+# Rule configurations
+rules:
+  # Configure complexity threshold
+  Metrics/CyclomaticComplexity:
+    enabled: true
+    max_complexity: 8
+    
+  # Configure line length
+  Layout/LineLength:
+    enabled: true
+    max_length: 120
+    
+  # Configure method naming
+  Naming/MethodNames:
+    enabled: true
+    excluded:
+      - to_json
+      - to_s
+      - from_json
+      - clone
+      - respond_to?
+
+# Configure formatter
+formatter:
+  enabled:
+    - progress
+  excluded:
+    - todo
