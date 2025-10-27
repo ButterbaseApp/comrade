@@ -4,7 +4,7 @@
 [![CI Status](https://github.com/ButterbaseApp/comrade/actions/workflows/badge.yml/badge.svg)](https://github.com/ButterbaseApp/comrade/actions/workflows/badge.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> A Crystal OAuth library inspired by Laravel Socialite for simple, elegant OAuth authentication.
+> A Crystal OAuth library inspired by Laravel Socialite for simple, elegant OAuth authentication with enterprise SSO support.
 
 ## Table of Contents
 
@@ -22,9 +22,9 @@
 
 ## Background
 
-Comrade provides a simple, elegant interface for OAuth authentication with various providers like GitHub, Google, and more. Inspired by Laravel Socialite, it offers a fluent API for handling OAuth flows in Crystal applications.
+Comrade provides a simple, elegant interface for OAuth authentication with various providers like GitHub, Google, and more. Inspired by Laravel Socialite, it offers a fluent API for handling OAuth flows in Crystal applications with enterprise-ready SSO capabilities through WorkOS.
 
-The library follows a singleton pattern with a centralized Manager for provider configuration and supports both confidential and public client flows, including PKCE for enhanced security.
+The library follows a singleton pattern with a centralized Manager for provider configuration and supports both confidential and public client flows, including PKCE for enhanced security. It seamlessly integrates with popular OAuth providers while also offering enterprise SSO through SAML and OIDC connections.
 
 ## Install
 
@@ -55,6 +55,14 @@ Comrade.register_provider(
   ["user:email"]
 )
 
+# Configure WorkOS for enterprise SSO
+Comrade.register_provider(
+  :workos,
+  "WORKOS_CLIENT_ID",
+  "WORKOS_CLIENT_SECRET",
+  "http://localhost:3000/auth/workos/callback"
+)
+
 # Or configure globally
 Comrade.configure do |config|
   config.http_timeout = 30
@@ -82,6 +90,14 @@ Comrade.register_provider(
   "GOOGLE_CLIENT_SECRET",
   "http://localhost:3000/auth/google/callback",
   ["openid", "profile", "email"]
+)
+
+# Configure WorkOS enterprise SSO
+Comrade.register_provider(
+  :workos,
+  "WORKOS_CLIENT_ID",
+  "WORKOS_CLIENT_SECRET",
+  "http://localhost:3000/auth/workos/callback"
 )
 ```
 
@@ -158,6 +174,7 @@ github.revoke_token(token.access_token)
 - [x] **Facebook/Meta** - OAuth 2.0, Graph API, permissions system
 - [x] **Twitter/X** - OAuth 2.0, user profile and tweets access
 - [x] **Discord** - OAuth 2.0, rich user/guild data
+- [x] **WorkOS** - Enterprise SSO via SAML/OIDC, organization-based authentication
 - [ ] **Microsoft** - OAuth 2.0 + OpenID Connect, Azure AD support
 - [ ] **Slack** - OAuth 2.0, workspace integration
 - [ ] **LinkedIn** - OAuth 2.0, professional profile data
@@ -242,6 +259,60 @@ guilds = discord.get_user_guilds(token)
 # Default scopes: ["identify", "email"]
 # Supports avatar URLs, guild information, and token revocation
 # Note: Requires Discord Application with OAuth2 configured
+```
+
+#### WorkOS
+
+WorkOS provides enterprise-ready SSO capabilities through SAML and OIDC connections, perfect for B2B applications.
+
+```crystal
+# Configure WorkOS provider
+Comrade.register_provider(
+  :workos,
+  "WORKOS_CLIENT_ID",
+  "WORKOS_CLIENT_SECRET",
+  "http://localhost:3000/auth/workos/callback"
+)
+
+# Connection-based SSO (recommended for specific organizations)
+workos = Comrade.driver(:workos)
+auth_url = workos.redirect(
+  connection: "conn_123456789",  # Specific SSO connection
+  domain_hint: "acme.com",       # Optional: help users select IdP
+  login_hint: "user@acme.com",   # Optional: pre-fill email
+  state: "random-state-string"
+)
+
+# Organization-based SSO (for enterprise customers)
+auth_url = workos.redirect(
+  organization: "org_123456789",  # WorkOS organization
+  state: "random-state-string"
+)
+
+# Direct OAuth providers (via WorkOS)
+auth_url = workos.redirect(
+  provider: "GoogleOAuth",         # "GoogleOAuth", "MicrosoftOAuth", "GitHubOAuth", "AppleOAuth"
+  state: "random-state-string"
+)
+
+# Exchange authorization code for user
+code = params["code"]
+token = workos.get_token(code, state: state)
+user = workos.user(token)
+
+# Access enterprise-specific data
+user.raw["organization_id"]?.try(&.as_s)      # Organization ID
+user.raw["connection_id"]?.try(&.as_s)        # Connection ID
+user.raw["connection_type"]?.try(&.as_s)      # "SAML", "OIDC", etc.
+user.raw["groups"]?.try(&.as_a)                # User groups from IdP
+
+# WorkOS enterprise features
+# - No refresh tokens (tokens are long-lived)
+# - Supports SAML and OIDC providers
+# - Organization and connection management
+# - Group-based access control
+# - Token revocation support
+# Note: Requires WorkOS account with SSO connections configured
 ```
 
 ## API

@@ -50,4 +50,11 @@ module Comrade
       super("Invalid OAuth scopes: #{@scopes.join(", ")}")
     end
   end
+
+  # Raised when an operation is not supported by the provider
+  class NotSupportedException < Exception
+    def initialize(message = "Operation not supported by this OAuth provider")
+      super(message)
+    end
+  end
 end

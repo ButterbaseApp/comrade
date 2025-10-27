@@ -39,6 +39,39 @@ module Comrade
       new(id, nickname, name, email, avatar, data)
     end
 
+    # Create user from WorkOS response with enterprise-specific fields
+    def self.from_workos_response(data : JSON::Any, mappings : Hash(String, String)? = nil) : User
+      # Default field mappings for WorkOS
+      default_mappings = {
+        "id"       => "id",
+        "nickname" => "email", # Fallback to email for nickname
+        "name"     => "first_name",
+        "email"    => "email",
+        "avatar"   => "profile_picture_url",
+      }
+
+      # Merge with custom mappings
+      field_mappings = default_mappings.merge(mappings || {} of String => String)
+
+      id = get_field(data, field_mappings["id"])
+      raise "Missing user ID in WorkOS response" if id.nil? || id.empty?
+
+      nickname = field_mappings["nickname"]? ? get_field(data, field_mappings["nickname"]) : nil
+      first_name = field_mappings["name"]? ? get_field(data, field_mappings["name"]) : nil
+      email = field_mappings["email"]? ? get_field(data, field_mappings["email"]) : nil
+      avatar = field_mappings["avatar"]? ? get_field(data, field_mappings["avatar"]) : nil
+
+      # Combine first and last name for full name
+      last_name = data["last_name"]?.try(&.as_s?)
+      name = if first_name && last_name
+               "#{first_name} #{last_name}"
+             else
+               first_name
+             end
+
+      new(id, nickname, name, email, avatar, data)
+    end
+
     # Get a field from JSON data with fallback
     private def self.get_field(data : JSON::Any, field_path : String) : String?
       return nil if field_path.nil?

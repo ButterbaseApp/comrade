@@ -90,6 +90,8 @@ module Comrade
         Providers::Twitter.new(config.client_id, config.redirect_uri, config.client_secret)
       when :discord
         Providers::Discord.new(config.client_id, config.redirect_uri, config.client_secret)
+      when :workos
+        Providers::WorkOS.new(config.client_id, config.redirect_uri, config.client_secret)
       else
         raise ConfigurationException.new("Unknown provider: #{name}")
       end

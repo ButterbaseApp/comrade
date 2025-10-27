@@ -74,6 +74,19 @@ module Comrade
       to_h.to_json
     end
 
+    # Create token from WorkOS response
+    def self.from_workos_response(data : JSON::Any) : Token
+      access_token = data["access_token"]?.try(&.as_s) || raise "Missing access_token in WorkOS response"
+
+      # WorkOS typically doesn't provide refresh tokens or expiration
+      refresh_token = nil
+      expires_in = nil
+      scope = nil
+      token_type = "Bearer"
+
+      new(access_token, refresh_token, expires_in, scope, token_type)
+    end
+
     # Create token from hash
     def self.from_h(hash : Hash(String, JSON::Any::Type)) : Token
       access_token = hash["access_token"]?.to_s
