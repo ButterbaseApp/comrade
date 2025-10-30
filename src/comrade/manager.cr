@@ -60,44 +60,30 @@ module Comrade
       register_provider(name, config)
     end
 
-    # Get a provider instance by name
-    def driver(name : Symbol) : Comrade::Providers::BaseProvider
-      provider_name = name.to_s
-      provider = @providers[provider_name]?
+    # Get a provider instance by enum
+    def driver(provider : Provider) : Comrade::Providers::BaseProvider
+      provider_name = provider.name
+      provider_instance = @providers[provider_name]?
 
-      if provider.nil?
+      if provider_instance.nil?
         config = @configs[provider_name]?
         raise ConfigurationException.new("Provider '#{provider_name}' not configured") unless config
 
-        provider = create_provider(name, config)
-        provider.http_client.timeout = @http_timeout
-        @providers[provider_name] = provider
+        provider_instance = provider.to_provider(config)
+        provider_instance.http_client.timeout = @http_timeout
+        @providers[provider_name] = provider_instance
       end
 
-      provider
+      provider_instance
     end
 
-    # Create provider instance based on name
-    private def create_provider(name : Symbol, config : ProviderConfig) : Comrade::Providers::BaseProvider
-      case name
-      when :github
-        Providers::GitHub.new(config.client_id, config.redirect_uri, config.client_secret)
-      when :google
-        Providers::Google.new(config.client_id, config.redirect_uri, config.client_secret)
-      when :facebook
-        Providers::Facebook.new(config.client_id, config.redirect_uri, config.client_secret)
-      when :twitter
-        Providers::Twitter.new(config.client_id, config.redirect_uri, config.client_secret)
-      when :discord
-        Providers::Discord.new(config.client_id, config.redirect_uri, config.client_secret)
-      when :workos
-        Providers::WorkOS.new(config.client_id, config.redirect_uri, config.client_secret)
-      else
-        raise ConfigurationException.new("Unknown provider: #{name}")
-      end
-    end
-
+    
     # Check if a provider is configured
+    def provider_configured?(name : String) : Bool
+      @configs.has_key?(name)
+    end
+
+    # Check if a provider is configured (legacy symbol support)
     def provider_configured?(name : Symbol) : Bool
       @configs.has_key?(name.to_s)
     end

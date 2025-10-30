@@ -6,7 +6,7 @@ require "./comrade/**"
 # various providers like GitHub, Google, Facebook, and more.
 #
 # Example:
-#   github = Comrade.driver(:github)
+#   github = Comrade.driver(Provider::Github)
 #   auth_url = github.redirect(scopes: ["user:email"])
 #   user = github.user(callback_code)
 module Comrade
@@ -16,11 +16,11 @@ module Comrade
   #
   # Returns a provider instance for the given driver
   #
-  # Example:
-  #   github = Comrade.driver(:github)
-  #   google = Comrade.driver(:google)
-  def self.driver(name : Symbol)
-    Manager.instance.driver(name)
+  # Examples:
+  #   github = Comrade.driver(Provider::Github)
+  #   google = Comrade.driver(:google)  # Symbol automatically converts to Provider::Google
+  def self.driver(provider : Provider)
+    Manager.instance.driver(provider)
   end
 
   # Configure global settings
@@ -37,14 +37,22 @@ module Comrade
   end
 
   # Register a provider configuration from environment variables
-  def self.register_provider(name : Symbol, client_id_env : String, client_secret_env : String? = nil,
+  #
+  # Examples:
+  #   Comrade.register_provider(Provider::Github, "GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET")
+  #   Comrade.register_provider(:google, "GOOGLE_CLIENT_ID")  # Symbol automatically converts
+  def self.register_provider(provider : Provider, client_id_env : String, client_secret_env : String? = nil,
                              redirect_uri : String = "", scopes : Array(String) = [] of String)
-    Manager.instance.register_provider(name.to_s, client_id_env, client_secret_env, redirect_uri, scopes)
+    Manager.instance.register_provider(provider.name, client_id_env, client_secret_env, redirect_uri, scopes)
   end
 
   # Check if a provider is configured
-  def self.provider_configured?(name : Symbol) : Bool
-    Manager.instance.provider_configured?(name)
+  #
+  # Examples:
+  #   Comrade.provider_configured?(Provider::Github)
+  #   Comrade.provider_configured?(:google)  # Symbol automatically converts
+  def self.provider_configured?(provider : Provider) : Bool
+    Manager.instance.provider_configured?(provider.name)
   end
 
   # Remove a provider configuration

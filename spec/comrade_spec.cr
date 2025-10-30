@@ -22,7 +22,7 @@ describe Comrade do
 
     it "raises exception for unconfigured provider" do
       expect_raises(Comrade::ConfigurationException) do
-        Comrade.driver(:nonexistent)
+        Comrade.driver(:github)  # Valid enum but not configured
       end
     end
   end
