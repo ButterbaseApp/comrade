@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2025-10-30
+
+### Breaking Changes
+
+- feat!: introduce typed Provider enum for type-safe provider handling
+  - Replace Symbol-based provider identification with strongly-typed Provider enum
+  - Improves type safety and IDE support while maintaining backward compatibility
+  - BREAKING CHANGE: public API now prefers Provider enum over Symbol
+
+### Added
+
+- feat: add WorkOS enterprise SSO provider support
+  - Comprehensive WorkOS provider integration enabling enterprise SSO capabilities
+  - Support for SAML, OIDC, and direct OAuth providers
+  - Connection-based, organization-based, and provider-based authentication flows
+  - Group-based access control data and token revocation support
+
+### Bug Fixes
+
+- fix: formatting
+
 ## [Unreleased]
 
 ## [0.1.0] - 2025-01-14
@@ -34,5 +55,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dependency management via shards
 - Test coverage reporting
 
-[Unreleased]: https://github.com/ButterbaseApp/comrade/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/ButterbaseApp/comrade/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/ButterbaseApp/comrade/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/ButterbaseApp/comrade/releases/tag/v0.1.0
