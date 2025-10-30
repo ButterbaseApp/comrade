@@ -33,7 +33,7 @@ Add the dependency to your `shard.yml`:
 ```yaml
 dependencies:
   comrade:
-    github: watzon/comrade
+    github: ButterbaseApp/comrade
     version: ~> 0.1.0
 ```
 
