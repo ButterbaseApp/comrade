@@ -8,6 +8,7 @@ module Comrade
     Discord
     Workos
     Authentik
+    Keycloak
 
     # Convert the enum to a provider instance
     #
@@ -30,6 +31,10 @@ module Comrade
       when .authentik?
         base_url = config.additional_params["base_url"]?
         Providers::Authentik.new(config.client_id, config.redirect_uri, config.client_secret, base_url)
+      when .keycloak?
+        base_url = config.additional_params["base_url"]?
+        realm = config.additional_params["realm"]?
+        Providers::Keycloak.new(config.client_id, config.redirect_uri, config.client_secret, base_url, realm)
       else
         raise ConfigurationException.new("Unknown provider: #{self}")
       end
@@ -45,6 +50,7 @@ module Comrade
       when .discord?   then "discord"
       when .workos?    then "workos"
       when .authentik? then "authentik"
+      when .keycloak?  then "keycloak"
       else
         self.to_s.downcase
       end

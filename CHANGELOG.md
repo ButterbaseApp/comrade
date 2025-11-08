@@ -28,6 +28,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- feat: add Keycloak OAuth 2.0 and OpenID Connect provider support
+  - Comprehensive Keycloak provider integration for enterprise identity management
+  - Support for realm-based architecture and multi-tenant scenarios
+  - OpenID Connect standard compliance with PKCE support
+  - Token refresh, revocation, and session management capabilities
+  - JSON Web Key Set (JWKS) and OpenID Connect configuration discovery
+  - Comprehensive test coverage and documentation
+
 ## [0.1.0] - 2025-01-14
 
 ### Added

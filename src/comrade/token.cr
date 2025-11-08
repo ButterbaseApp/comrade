@@ -32,6 +32,21 @@ module Comrade
       new(access_token, refresh_token, expires_in, scope, token_type)
     end
 
+    # Create token from Keycloak response with OpenID Connect fields
+    def self.from_keycloak_response(data : JSON::Any) : Token
+      access_token = data["access_token"]?.try(&.as_s) || raise "Missing access_token in Keycloak response"
+      refresh_token = data["refresh_token"]?.try(&.as_s?)
+      expires_in = data["expires_in"]?.try(&.as_i?)
+      scope = data["scope"]?.try(&.as_s?)
+      token_type = data["token_type"]?.try(&.as_s?) || "Bearer"
+
+      # Handle ID token if present (OpenID Connect)
+      # Note: ID token validation would require JWT library, storing for now
+      # id_token = data["id_token"]?.try(&.as_s?)
+
+      new(access_token, refresh_token, expires_in, scope, token_type)
+    end
+
     # Check if token is expired
     def expired? : Bool
       return false unless expires = expires_in

@@ -99,6 +99,14 @@ Comrade.register_provider(
   "WORKOS_CLIENT_SECRET",
   "http://localhost:3000/auth/workos/callback"
 )
+
+# Configure Keycloak with realm
+Comrade.register_provider(
+  :keycloak,
+  "KEYCLOAK_CLIENT_ID",
+  "KEYCLOAK_CLIENT_SECRET",
+  "http://localhost:3000/auth/keycloak/callback"
+)
 ```
 
 #### Hash Configuration
@@ -176,6 +184,7 @@ github.revoke_token(token.access_token)
 - [x] **Discord** - OAuth 2.0, rich user/guild data
 - [x] **WorkOS** - Enterprise SSO via SAML/OIDC, organization-based authentication
 - [x] **Authentik** - OAuth 2.0 + OpenID Connect, self-hosted identity provider, token revocation
+- [x] **Keycloak** - OAuth 2.0 + OpenID Connect, enterprise identity management, realm-based architecture
 - [ ] **Microsoft** - OAuth 2.0 + OpenID Connect, Azure AD support
 - [ ] **Slack** - OAuth 2.0, workspace integration
 - [ ] **LinkedIn** - OAuth 2.0, professional profile data
@@ -375,6 +384,90 @@ auth_url = authentik.redirect(
 token = authentik.get_token(code, state: state, code_verifier: code_verifier)
 
 # Note: Requires Authentik instance with OAuth2 provider configured
+```
+
+#### Keycloak
+
+Keycloak is an open-source identity and access management solution focused on enterprise use cases. It provides comprehensive OAuth 2.0 and OpenID Connect support with realm-based architecture for multi-tenant scenarios.
+
+```crystal
+# Configure Keycloak provider with base URL and realm
+Comrade.register_provider(
+  :keycloak,
+  {
+    "name"         => "keycloak",
+    "client_id"    => ENV["KEYCLOAK_CLIENT_ID"],
+    "client_secret" => ENV["KEYCLOAK_CLIENT_SECRET"],
+    "redirect_uri" => "http://localhost:3000/auth/keycloak/callback",
+    "scopes"       => ["openid", "profile", "email"],
+    "base_url"     => ENV["KEYCLOAK_BASE_URL"],  # e.g., "https://keycloak.company.com"
+    "realm"        => ENV["KEYCLOAK_REALM"]      # e.g., "myrealm" or "master"
+  }
+)
+
+# Or configure with realm-based redirect URI (extracted automatically)
+Comrade.register_provider(
+  :keycloak,
+  "KEYCLOAK_CLIENT_ID",
+  "KEYCLOAK_CLIENT_SECRET",
+  "https://keycloak.company.com/realms/myrealm/callback"
+)
+
+# Get Keycloak driver and start OAuth flow
+keycloak = Comrade.driver(:keycloak)
+auth_url = keycloak.redirect(
+  scopes: ["openid", "profile", "email"],
+  state: "random-state-string"
+)
+
+# Exchange authorization code for user
+code = params["code"]
+token = keycloak.get_token(code, state: state)
+user = keycloak.get_user(token)
+
+# OpenID Connect user data
+user.id                                            # Subject identifier (sub)
+user.email                                         # User email
+user.name                                          # User display name
+user.nickname                                      # Preferred username
+user.avatar                                        # Profile picture URL
+
+# Keycloak-specific features
+keycloak.default_scopes                            # ["openid", "profile", "email"]
+keycloak.revoke_token(token.access_token)          # Token revocation support
+
+# End session (logout user)
+logout_url = keycloak.end_session(
+  id_token_hint: token.id_token,                   # Optional: ID token from token response
+  post_logout_redirect_uri: "http://localhost:3000/logout"
+)
+
+# Get OpenID Connect configuration
+oidc_config = keycloak.oidc_configuration
+jwks = keycloak.jwks                               # JSON Web Key Set for token validation
+
+# Token refresh with optional scope
+refreshed_token = keycloak.refresh_token(
+  token.refresh_token.not_nil!,
+  scope: "openid profile email"                     # Optional: request different scopes
+)
+
+# PKCE support for public clients (mobile apps, SPAs)
+code_verifier = keycloak.generate_code_verifier
+auth_url = keycloak.redirect(
+  scopes: ["openid", "email"],
+  code_verifier: code_verifier,
+  state: "random-state-string"
+)
+token = keycloak.get_token(code, state: state, code_verifier: code_verifier)
+
+# Note: Requires Keycloak server with OpenID Connect client configured
+# Typical Keycloak endpoints:
+# - Authorization: https://keycloak.company.com/realms/{realm}/protocol/openid-connect/auth
+# - Token:        https://keycloak.company.com/realms/{realm}/protocol/openid-connect/token
+# - User Info:    https://keycloak.company.com/realms/{realm}/protocol/openid-connect/userinfo
+# - Logout:       https://keycloak.company.com/realms/{realm}/protocol/openid-connect/logout
+# - JWKS:         https://keycloak.company.com/realms/{realm}/protocol/openid-connect/certs
 ```
 
 ## API

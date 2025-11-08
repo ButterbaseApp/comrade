@@ -72,6 +72,31 @@ module Comrade
       new(id, nickname, name, email, avatar, data)
     end
 
+    # Create user from Keycloak response with OpenID Connect fields
+    def self.from_keycloak_response(data : JSON::Any, mappings : Hash(String, String)? = nil) : User
+      # Default field mappings for Keycloak (OpenID Connect standard)
+      default_mappings = {
+        "id"       => "sub",
+        "nickname" => "preferred_username",
+        "name"     => "name",
+        "email"    => "email",
+        "avatar"   => "picture",
+      }
+
+      # Merge with custom mappings
+      field_mappings = default_mappings.merge(mappings || {} of String => String)
+
+      id = get_field(data, field_mappings["id"])
+      raise "Missing user ID (sub) in Keycloak response" if id.nil? || id.empty?
+
+      nickname = field_mappings["nickname"]? ? get_field(data, field_mappings["nickname"]) : nil
+      name = field_mappings["name"]? ? get_field(data, field_mappings["name"]) : nil
+      email = field_mappings["email"]? ? get_field(data, field_mappings["email"]) : nil
+      avatar = field_mappings["avatar"]? ? get_field(data, field_mappings["avatar"]) : nil
+
+      new(id, nickname, name, email, avatar, data)
+    end
+
     # Get a field from JSON data with fallback
     private def self.get_field(data : JSON::Any, field_path : String) : String?
       return nil if field_path.nil?
