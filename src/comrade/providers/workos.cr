@@ -38,7 +38,7 @@ module Comrade
         params["login_hint"] = login_hint if login_hint
 
         # Add scopes if provided (WorkOS doesn't always require scopes)
-        if scopes.any?
+        if !scopes.empty?
           params["scope"] = scopes.join(" ")
         end
 
