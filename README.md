@@ -175,6 +175,7 @@ github.revoke_token(token.access_token)
 - [x] **Twitter/X** - OAuth 2.0, user profile and tweets access
 - [x] **Discord** - OAuth 2.0, rich user/guild data
 - [x] **WorkOS** - Enterprise SSO via SAML/OIDC, organization-based authentication
+- [x] **Authentik** - OAuth 2.0 + OpenID Connect, self-hosted identity provider, token revocation
 - [ ] **Microsoft** - OAuth 2.0 + OpenID Connect, Azure AD support
 - [ ] **Slack** - OAuth 2.0, workspace integration
 - [ ] **LinkedIn** - OAuth 2.0, professional profile data
@@ -313,6 +314,67 @@ user.raw["groups"]?.try(&.as_a)                # User groups from IdP
 # - Group-based access control
 # - Token revocation support
 # Note: Requires WorkOS account with SSO connections configured
+```
+
+#### Authentik
+
+Authentik is an open-source identity provider that supports OAuth 2.0 and OpenID Connect. Perfect for self-hosted authentication solutions.
+
+```crystal
+# Configure Authentik provider with base URL
+Comrade.register_provider(
+  :authentik,
+  {
+    "name"         => "authentik",
+    "client_id"    => ENV["AUTHENTIK_CLIENT_ID"],
+    "client_secret" => ENV["AUTHENTIK_CLIENT_SECRET"],
+    "redirect_uri" => "http://localhost:3000/auth/authentik/callback",
+    "scopes"       => ["openid", "profile", "email"],
+    "base_url"     => ENV["AUTHENTIK_BASE_URL"] # e.g., "https://authentik.company.com"
+  }
+)
+
+# Or configure with domain-based redirect URI (base URL extracted automatically)
+Comrade.register_provider(
+  :authentik,
+  "AUTHENTIK_CLIENT_ID",
+  "AUTHENTIK_CLIENT_SECRET",
+  "https://authentik.company.com/application/o/callback/"
+)
+
+# Get Authentik driver and start OAuth flow
+authentik = Comrade.driver(:authentik)
+auth_url = authentik.redirect(
+  scopes: ["openid", "profile", "email"],
+  state: "random-state-string"
+)
+
+# Exchange authorization code for user
+code = params["code"]
+token = authentik.get_token(code, state: state)
+user = authentik.get_user(token)
+
+# OpenID Connect user data
+user.id                                            # Subject identifier (sub)
+user.email                                         # User email
+user.name                                          # User display name
+user.nickname                                      # Preferred username
+user.avatar                                        # Profile picture URL
+
+# Authentik-specific features
+authentik.default_scopes                           # ["openid", "profile", "email"]
+authentik.revoke_token(token.access_token)         # Token revocation support
+
+# PKCE support for public clients (mobile apps, SPAs)
+code_verifier = authentik.generate_code_verifier
+auth_url = authentik.redirect(
+  scopes: ["openid", "email"],
+  code_verifier: code_verifier,
+  state: "random-state-string"
+)
+token = authentik.get_token(code, state: state, code_verifier: code_verifier)
+
+# Note: Requires Authentik instance with OAuth2 provider configured
 ```
 
 ## API

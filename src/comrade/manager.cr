@@ -77,7 +77,6 @@ module Comrade
       provider_instance
     end
 
-    
     # Check if a provider is configured
     def provider_configured?(name : String) : Bool
       @configs.has_key?(name)

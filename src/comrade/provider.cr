@@ -7,6 +7,7 @@ module Comrade
     Twitter
     Discord
     Workos
+    Authentik
 
     # Convert the enum to a provider instance
     #
@@ -26,6 +27,9 @@ module Comrade
         Providers::Discord.new(config.client_id, config.redirect_uri, config.client_secret)
       when .workos?
         Providers::WorkOS.new(config.client_id, config.redirect_uri, config.client_secret)
+      when .authentik?
+        base_url = config.additional_params["base_url"]?
+        Providers::Authentik.new(config.client_id, config.redirect_uri, config.client_secret, base_url)
       else
         raise ConfigurationException.new("Unknown provider: #{self}")
       end
@@ -34,12 +38,13 @@ module Comrade
     # Get the provider name as a string
     def name : String
       case self
-      when .github?   then "github"
-      when .google?   then "google"
-      when .facebook? then "facebook"
-      when .twitter?  then "twitter"
-      when .discord?  then "discord"
-      when .workos?   then "workos"
+      when .github?    then "github"
+      when .google?    then "google"
+      when .facebook?  then "facebook"
+      when .twitter?   then "twitter"
+      when .discord?   then "discord"
+      when .workos?    then "workos"
+      when .authentik? then "authentik"
       else
         self.to_s.downcase
       end
