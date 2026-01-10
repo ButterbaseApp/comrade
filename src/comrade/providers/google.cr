@@ -74,13 +74,13 @@ module Comrade
         }
 
         # Add client secret if available (confidential client)
-        if client_secret
-          params["client_secret"] = client_secret
+        if secret = client_secret
+          params["client_secret"] = secret
         end
 
         # Add code verifier for PKCE
-        if code_verifier
-          params["code_verifier"] = code_verifier
+        if verifier = code_verifier
+          params["code_verifier"] = verifier
         end
 
         headers = HTTP::Headers{
@@ -103,8 +103,8 @@ module Comrade
         }
 
         # Add client secret if available
-        if client_secret
-          params["client_secret"] = client_secret
+        if secret = client_secret
+          params["client_secret"] = secret
         end
 
         headers = HTTP::Headers{
