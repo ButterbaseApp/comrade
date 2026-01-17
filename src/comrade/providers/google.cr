@@ -84,7 +84,8 @@ module Comrade
         end
 
         headers = HTTP::Headers{
-          "Accept" => "application/json",
+          "Accept"       => "application/json",
+          "Content-Type" => "application/x-www-form-urlencoded",
         }
 
         response = make_request("POST", token_url, HTTP::Params.encode(params), headers)
@@ -108,7 +109,8 @@ module Comrade
         end
 
         headers = HTTP::Headers{
-          "Accept" => "application/json",
+          "Accept"       => "application/json",
+          "Content-Type" => "application/x-www-form-urlencoded",
         }
 
         response = make_request("POST", token_url, HTTP::Params.encode(params), headers)
@@ -139,7 +141,8 @@ module Comrade
         }
 
         headers = HTTP::Headers{
-          "Accept" => "application/json",
+          "Accept"       => "application/json",
+          "Content-Type" => "application/x-www-form-urlencoded",
         }
 
         response = make_request("POST", revocation_url, HTTP::Params.encode(params), headers)
